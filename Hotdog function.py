@@ -1,7 +1,7 @@
 class Choice():
     meat_choice = 'burger', 'hotdog', 'side only'
 
-    def __init__(self,meat_choice: str): 
+    def __init__(self): 
         
         while True:
             meat_selection = input("Would you like a burger, hotdog or only a side?: ").strip().lower()
@@ -17,8 +17,8 @@ class Hotdog(Choice):
     #Dictionary of prices for specialty dogs and toppings
     PRICES = {
         "base": {"regular": 3.00, "chicago": 4.50, "coney": 4.25},
-        "topping": {
-            "keptchup": 0.25, "mustard": 0.25, "relish": 0.40, "onions": 0.30,
+        "toppings": {
+            "ketchup": 0.25, "mustard": 0.25, "relish": 0.40, "onions": 0.30,
              "chili": 1.00, "nacho cheese": 0.75
         }
     }
@@ -62,16 +62,16 @@ class Hotdog(Choice):
 
 
     #Calculate base price and topping price using dicitonary
-    def calc_total(self, order: dict) -> float:
+    def calc_total(self) -> float:
         if not self.order:
             return 0.0
-        base = order["base"] if order["base"] in {"chicago","coney"} else "regular"
+        base = self.order["base"] if self.order["base"] in {"chicago","coney"} else "regular"
         base_price = self.PRICES["base"][base]
-        top_total = sum(self.PRICES["toppings"][top] for top in order["toppings"])
+        top_total = sum(self.PRICES["toppings"][top] for top in self.order["toppings"])
         return (base_price + top_total)
     
     #Summary total of hotdog order using dictionary for reference
-    def print_summary(self, order: dict):
+    def print_summary(self):
         if not self.order:
             print("No hotdog ordered.")
             return
