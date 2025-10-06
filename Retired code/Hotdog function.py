@@ -31,7 +31,7 @@ class Hotdog(Choice):
         if self.meat_choice == "hotdog":
             self.order = self.get_order()
         
-    def get_order(self):
+    def get_order(self): # MOVE TO SUPER
         #Option to choose a specialty style dog    
         specialty = 'chicago', 'coney'
         toppings = set(self.PRICES["toppings"])
@@ -59,10 +59,8 @@ class Hotdog(Choice):
 
         return {"base": self.hotdog_type, "toppings": list(self.top_choices)}
     
-
-
     #Calculate base price and topping price using dicitonary
-    def calc_total(self) -> float:
+    def calc_total(self) -> float: # MOVE TO SUPER
         if not self.order:
             return 0.0
         base = self.order["base"] if self.order["base"] in {"chicago","coney"} else "regular"
@@ -71,7 +69,7 @@ class Hotdog(Choice):
         return (base_price + top_total)
     
     #Summary total of hotdog order using dictionary for reference
-    def print_summary(self):
+    def print_summary(self): # MOVE TO SUPER
         if not self.order:
             print("No hotdog ordered.")
             return
