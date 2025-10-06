@@ -55,22 +55,22 @@ class Order(Menu):
 
             elif foodChoice == '1' and self.hotdog:
              itemToppings = self.getToppings()
-             self.items_ordered.append({"Item:": "Hotdog", "Toppings": itemToppings})
+             self.items_ordered.append({"Item": "Hotdog", "Toppings": itemToppings})
 
 
 
             elif foodChoice == '2' and self.burger:
                 itemToppings = self.getToppings()
-                self.items_ordered.append({"Item:": "Burger", "Toppings": itemToppings})
+                self.items_ordered.append({"Item": "Burger", "Toppings": itemToppings})
 
 
             elif foodChoice == '3' and self.fries:
                 itemFries = self.getFries()
-                self.items_ordered.append({"Items": "French Fries", "Size": itemFries})
+                self.items_ordered.append({"Item": "French Fries", "Size": itemFries})
 
             elif foodChoice == '4' and self.drink:
                 itemDrink = self.getDrink()
-                self.items_ordered.append({"Items": itemDrink})
+                self.items_ordered.append({"Item": itemDrink})
                 
             else:
                 print("Invalid choice or option not available.")
@@ -153,6 +153,7 @@ def display_menu():
 
 
 def main():
+    #Empty list to hold all orders, adds to it as they are made
     allOrders = []
     menu = Menu( hotdog=True, burger=True, fries=True, drink=True)
     while True:    
