@@ -138,14 +138,20 @@ class Order(Menu):
         drink = []
         drink_options = ["Fountain", "Sweet Tea", "Water"]
         while True:
-            for item in enumerate(drink_options):
-                print()
-            drink_choice = int(input("Enter drink choice"))
-            if 1 <= drink_choice <= 3:
-                drink.append(drink_options[drink_choice - 1])
-                break
-            else:
-                "Error, please enter 1, 2, or 3"
+            print("Drink options:")
+            print("1. Fountain")
+            print("2. Sweet Tea")
+            print("3. Water")
+            try:
+
+                drink_choice = int(input("Enter drink choice"))
+                if 1 <= drink_choice <= 3:
+                    drink.append(drink_options[drink_choice - 1])
+                    return drink_options[drink_choice - 1]
+                else:
+                    print("Error, please enter 1, 2, or 3")
+            except ValueError:
+                print("Error, please enter a number 1, 2 or 3")
 
 #Display that loops until a valid choice is made
 def display_menu():
@@ -172,19 +178,27 @@ class SubtotalCalculator:
 
     def calculate_subtotal(self):
         subtotal = 0.0
-        for item in self.items_ordered:
-            base_price = Menu.PRICES["base"].get(item["Item"], 0.0)
+        for item in self.items:
+            if item["Item"] in ["Hotdog", "Burger"]:
+                subtotal += Menu.PRICES["base"].get(item["Item"], 0.0)
         
-            toppings = item.get("Toppings", [])
-            topping_cost = sum(Menu.PRICES["toppings"].get(t, 0.0) for t in toppings)
+                toppings = item.get("Toppings", [])
+                subtotal += sum(Menu.PRICES["toppings"].get(t, 0.0) for t in toppings)
 
-            drink_cost = Menu.PRICES["drinks"].get(item["Item"], 0.0)
+                drink_cost = Menu.PRICES["drinks"].get(item["Item"], 0.0)
 
-            if item["Item"] == "French Fries":
+            elif item["Item"] == "French Fries":
                 #Default to small size for convinence off cutstomer if there is system error.
                 size = item.get("Size", "Small")
-                base_price = Menu.PRICES["base"]["French Fries"].get(size, 0.0)
-            subtotal += base_price + topping_cost + drink_cost
+                subtotal += Menu.PRICES["base"]["French Fries"].get(size, 0.0)
+                
+            elif item["Item"] == "Drink":
+                drink_cost = Menu.PRICES["drinks"].get(item["Item"], 0.0)
+                subtotal += drink_cost
+            else:   
+                print(f"Warning: Unknown item '{item['Item']}' encountered in order.")                                                              
+
+                                                       
         return round(subtotal, 2)
     
     #uses round to represent it as a float so we can correctly add up all the prices
@@ -215,21 +229,24 @@ class TotalCalculator:
 
 # print a receipt of items purchased, subtotal, tax, and total
 class ReceiptPrinter:
-    def __init__(self, items_ordered, subtotal, tax, total):
-        self.items_ordered = items_ordered
+    def __init__(self, items, subtotal, tax, total):
+        self.items = items
         self.subtotal = subtotal
         self.tax = tax
         self.total = total
 
     def print_receipt(self):
-        print("\n    Hot Dawgs Burger and Hotdog Stand\n")
-        print("\n--- Receipt ---")
-        for item in self.items_ordered:
+        print("\n    Hot Dawgs Burger and Hotdog Stand Receipt")
+        print("--------------------------------------------")
+        
+        for item in self.items:
             print(f"{item['Item']}:")
-            if item["Toppings"]:
+            if "Toppings" in item:
                 print("  Toppings: " + ", ".join(item["Toppings"]))
             else:
                 print("  Toppings: None")
+            if "Size" in item:
+                print(f"  Size: {item['Size']}")
         print(f"\nSubtotal: ${self.subtotal:.2f}")
         print(f"Sales Tax (7%): ${self.tax:.2f}")
         print(f"Total: ${self.total:.2f}")
@@ -240,6 +257,7 @@ def main():
     #Empty list to hold all orders, adds to it as they are made
     print("working")
     allOrders = []
+    
     menu = Menu( hotdog=True, burger=True, fries=True, drink=True)
     while True:    
         #While loop to keep displaying menu until user exits                                     
@@ -249,8 +267,14 @@ def main():
 
             order = Order(menu.hotdog, menu.burger, menu.fries, menu.drink)
             order.getOrder()
-            print(order.items_ordered)
-            subtot_calc = SubtotalCalculator(order.items_ordered)
+            items = order.items_ordered
+
+            subtotal = SubtotalCalculator(items).calculate_subtotal()
+            tax = SalesTaxCalculator(subtotal).calculate_tax()
+            total = TotalCalculator(subtotal, tax).calculate_total()
+            receipt = ReceiptPrinter(items, subtotal, tax, total)
+            receipt.print_receipt() 
+
             allOrders.append(order) #This will add the one instance of order to a list that holds all orders, or at least it will try to.
         elif menu_choice == '2':
             print("All orders placed:")
