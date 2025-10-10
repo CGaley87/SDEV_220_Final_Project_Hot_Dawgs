@@ -95,7 +95,11 @@ class Order(Menu):
             print("12. Relish")
             print("13. Plain")
             topping_choice = input("Enter topping numbers: (0 to finish) ")
-            if topping_choice == '0':
+            if topping_choice == '0' and len(toppings) == 0: #This is for if they are done picking toppings and have at least one
+                topping_choice = FoodToppings(13)
+                toppings.append(topping_choice.name)
+                break
+            elif topping_choice == '0' and len(toppings) > 0: #This is for if they are done picking toppings and have at least one
                 break
             if topping_choice == '13': #This is for if they get it plain, makes the toppings empty and adds plain and exits loop
                 toppings = []
@@ -243,10 +247,11 @@ class ReceiptPrinter:
             print(f"{item['Item']}:")
             if "Toppings" in item:
                 print("  Toppings: " + ", ".join(item["Toppings"]))
-            else:
-                print("  Toppings: None")
+            
             if "Size" in item:
                 print(f"  Size: {item['Size']}")
+            if "Drink" in item:
+                print(f"  Drink: {item['Drink']}")
         print(f"\nSubtotal: ${self.subtotal:.2f}")
         print(f"Sales Tax (7%): ${self.tax:.2f}")
         print(f"Total: ${self.total:.2f}")
@@ -257,7 +262,8 @@ def main():
     #Empty list to hold all orders, adds to it as they are made
     print("working")
     allOrders = []
-    
+    allSubtotals = []
+    allTaxes = []
     menu = Menu( hotdog=True, burger=True, fries=True, drink=True)
     while True:    
         #While loop to keep displaying menu until user exits                                     
@@ -273,24 +279,25 @@ def main():
             tax = SalesTaxCalculator(subtotal).calculate_tax()
             total = TotalCalculator(subtotal, tax).calculate_total()
             receipt = ReceiptPrinter(items, subtotal, tax, total)
-            receipt.print_receipt() 
-
+            receipt.print_receipt()
+            allSubtotals.append(subtotal)
+            allTaxes.append(tax)
             allOrders.append(order) #This will add the one instance of order to a list that holds all orders, or at least it will try to.
         elif menu_choice == '2':
+            total_sales = sum(allSubtotals)
+            total_tax = sum(allTaxes)
+            
+            print(f"\nDaily Sales Report:")
+            print(f"Total Sales (before tax): ${total_sales:.2f}")
+            print(f"Total Sales Tax Collected: ${total_tax:.2f}\n")
             print("All orders placed:")
-            for i, ord in enumerate(allOrders, start=1):
-                print(f"\nOrder {i}:")
-                subtotal = SubtotalCalculator(ord.items_ordered).calculate_subtotal()
-                tax = SalesTaxCalculator(subtotal).calculate_tax()
-                total = TotalCalculator(subtotal, tax).calculate_total()
+            for i, subtotal  in enumerate(allSubtotals, start=1):
+                tax = allTaxes[i-1]
+                print (f"Order {i} - Subtotal: ${subtotal:.2f}, Tax: ${tax}")
 
-                receipt = ReceiptPrinter(ord.items_ordered, subtotal, tax, total)
-                receipt.print_receipt()
-                # for item in ord.items_ordered:
-                #     if "Toppings" in item:
-                #         print(f"  {item['Item']} with {', '.join(item['Toppings'])}")
-                #     elif "Size" in item:
-                #         print(f"  {item['Item']} ({item['Size']})")
+            return 
+                
+                
                     
 
 
