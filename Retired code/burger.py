@@ -1,3 +1,8 @@
+# Curtis Galey, Nathan Schoenike, Isaiah Kerby
+# burger.py
+# Initial code design for burger to build off of
+
+
 from enum import Enum
 
 class FoodToppings(Enum):

@@ -1,8 +1,14 @@
+# Curtis Galey, Nathan Schoenike, Isaiah Kerby
+# maincode.py
+# This is the maincode of our program. It allows you to cycle through the entire
+#  menu and see what the expected outputs are to be. Toppings can be added freely
+#  without breaking the system.
+
 from enum import Enum
 
 class FoodToppings(Enum):
-    cheddar = 1
-    swiss = 2
+    nacho_cheese = 1
+    american = 2
     ketchup = 3 
     mustard = 4
     mayo = 5
@@ -14,6 +20,7 @@ class FoodToppings(Enum):
     mushrooms = 11
     relish = 12
     plain = 13
+    chili = 14
 
 class Menu():
     PRICES = {
@@ -23,9 +30,9 @@ class Menu():
         },
         "toppings": 
         {
-            "Cheddar Cheese": 0.50, "Swiss Cheese": 0.50, "Ketchup": 0.25, "Mustard": 0.25,
+            "Nacho Cheese": 0.50, "American Cheese": 0.50, "Ketchup": 0.25, "Mustard": 0.25,
             "Mayo": 0.25, "Lettuce": 0.25, "Tomato": 0.25, "Onion": 0.25, "Pickles": 0.25, "Bacon": 1.00,
-            "Mushrooms": 0.25, "Relish": 0.25, "Plain": 0.00
+            "Mushrooms": 0.25, "Relish": 0.25, "Plain": 0.00, "Chili": 0.75
         },
         "drinks":
         {
@@ -94,6 +101,7 @@ class Order(Menu):
             print("11. Mushrooms")
             print("12. Relish")
             print("13. Plain")
+            print("14. Chili")
             topping_choice = input("Enter topping numbers: (0 to finish) ")
             if topping_choice == '0' and len(toppings) == 0: #This is for if they are done picking toppings and have at least one
                 topping_choice = FoodToppings(13)
@@ -124,7 +132,7 @@ class Order(Menu):
             print("3. Large")
             
             try:
-                size_choice = int(input("Enter size choice for Fries. "))
+                size_choice = int(input("Enter size choice for Fries: "))
                 if 1 <= size_choice <= 3:
                     size.append(fry_options[size_choice - 1])
                     return fry_options[size_choice - 1]
@@ -132,11 +140,6 @@ class Order(Menu):
                     print("Error, please enter 1, 2 or 3")
             except ValueError:
                 print("Error, please enter a number 1, 2 or 3")
-            # if 1 <= size_choice <= 3:
-            #     size.append(fry_options[size_choice - 1])
-            #     break
-            # else:
-            #     "Error, please enter 1, 2 or 3"
 
     def getDrink(self):
         drink = []
@@ -148,7 +151,7 @@ class Order(Menu):
             print("3. Water")
             try:
 
-                drink_choice = int(input("Enter drink choice"))
+                drink_choice = int(input("Enter drink choice: "))
                 if 1 <= drink_choice <= 3:
                     drink.append(drink_options[drink_choice - 1])
                     return drink_options[drink_choice - 1]
@@ -188,16 +191,13 @@ class SubtotalCalculator:
         
                 toppings = item.get("Toppings", [])
                 subtotal += sum(Menu.PRICES["toppings"].get(t, 0.0) for t in toppings)
-
-                drink_cost = Menu.PRICES["drinks"].get(item["Item"], 0.0)
-
             elif item["Item"] == "French Fries":
                 #Default to small size for convinence off cutstomer if there is system error.
                 size = item.get("Size", "Small")
                 subtotal += Menu.PRICES["base"]["French Fries"].get(size, 0.0)
                 
             elif item["Item"] == "Drink":
-                drink_cost = Menu.PRICES["drinks"].get(item["Item"], 0.0)
+                drink_cost = Menu.PRICES["drinks"].get(item.get("Drink", ""), 0.0)
                 subtotal += drink_cost
             else:   
                 print(f"Warning: Unknown item '{item['Item']}' encountered in order.")                                                              
@@ -297,14 +297,7 @@ def main():
 
             return 
                 
-                
-                    
-
-
-
 if __name__ == "__main__":
     main()
-
-
 
 

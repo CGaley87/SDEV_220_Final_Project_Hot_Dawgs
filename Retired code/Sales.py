@@ -1,3 +1,7 @@
+# Curtis Galey, Nathan Schoenike, Isaiah Kerby
+# Sales.py
+# Initial sales code that was added into the maincode.py
+
 # Below are Sales classes to be added to Final Project burger.py file as of 2025-10-06
 
 
