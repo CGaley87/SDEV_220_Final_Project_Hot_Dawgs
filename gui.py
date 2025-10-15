@@ -28,8 +28,8 @@ class App(tk.Tk):
 
         btn_row = ttk.Frame(self)
         btn_row.pack(pady=8)
-        ttk.Button(btn_row, text="View daily sales report", command=self.show_report).grid(row=0, column=0, padx=6, pady = 20)
-        ttk.Button(btn_row, text="Start a new order", command=lambda: self.start_order(True)).grid(row=1, column=0, padx=6)
+        ttk.Button(btn_row, text="View Daily Sales Report", command=self.show_report).grid(row=0, column=0, padx=6, pady = 20)
+        ttk.Button(btn_row, text="Start a New Order", command=lambda: self.start_order(True)).grid(row=1, column=0, padx=6)
  
         #output frame
         self.output = tk.Text(self, height=20, width=80, state="disabled")
@@ -380,16 +380,17 @@ class App(tk.Tk):
         self.all_taxes.append(tax)
 
         #show final recepit
-        lines = ["****Receipt:****"]
+        lines = ["****Receipt:****\n"]
         for item in self.current_order:
             price = self.line_price(item)
             if item["Item"] in ("Burger", "Hotdog"):
-                tops = ", ".join(item.get("Toppings", [])) or "Plain"
-                lines.append(f"- {item['Item']}: ({tops}) .... ${price:.2f}")
+                tops = "\n ".join(f"{t} (${Menu.PRICES["toppings"].get(t, 0):.2f})"
+                                 for t in item.get("Toppings", [])) or "Plain"
+                lines.append(f"- {item['Item']}: {tops} .... ${price:.2f}\n")
             elif item["Item"] == "French Fries":
-                lines.append(f"- Fries: {item.get('Size', 'Small')} .... ${price:.2f}")
+                lines.append(f"- Fries: {item.get('Size', 'Small')} .... ${price:.2f}\n")
             elif item["Item"] == "Drink":
-                lines.append(f"- Drink: {item.get('Drink', '')}) .... ${price:.2f}")
+                lines.append(f"- Drink: {item.get('Drink', '')}) .... ${price:.2f}\n")
             else:
                 lines.append(f"- {item["Item"]} .... ${price:.2f}")
         lines += [
