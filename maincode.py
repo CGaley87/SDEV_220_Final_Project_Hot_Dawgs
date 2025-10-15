@@ -5,10 +5,10 @@
 #  without breaking the system.
 
 from enum import Enum
-
+from menu import Menu
 #enum for picking toppings in getToppings
 class FoodToppings(Enum):
-    nacho_cheese = 1
+    nacho = 1
     american = 2
     ketchup = 3 
     mustard = 4
@@ -23,43 +23,33 @@ class FoodToppings(Enum):
     plain = 13 
     chili = 14
 
-#Menu superclass which holds all prices
-class Menu():
-    PRICES = {
-        "base": 
-        {"Hotdog": 3.00, "Burger": 4.50, 
-         "French Fries": {"Small": 1.50, "Medium": 2.00, "Large": 2.50}
-        },
-        "toppings": 
-        {
-            "Nacho Cheese": 0.50, "American Cheese": 0.50, "Ketchup": 0.25, "Mustard": 0.25,
-            "Mayo": 0.25, "Lettuce": 0.25, "Tomato": 0.25, "Onion": 0.25, "Pickles": 0.25, "Bacon": 1.00,
-            "Mushrooms": 0.25, "Relish": 0.25, "Plain": 0.00, "Chili": 0.75
-        },
-        "drinks":
-        {
-            "Fountain": 2.00, "Sweet Tea": 2.00, "Water": 0.50
-        }
-    }
-    def __init__(self, hotdog, burger, fries, drink):
-        self.hotdog = hotdog
-        self.burger = burger
-        self.fries = fries
-        self.drink = drink
-
 #Order subclass which inherits the prices
 class Order(Menu):
     def __init__(self, hotdog, burger, fries, drink):
         super().__init__(hotdog, burger, fries, drink)
         self.items_ordered = []
+
+    def temp_order(self):
+        print("\n** Curent Order **")
+        for item in self.items_ordered:
+            print(f"{item['Item']}:")
+            if "Toppings" in item:
+                print("  Toppings: " + ", ".join(item["Toppings"]))
+            if "Size" in item:
+                print(f"  Size: {item['Size']}")
+            if "Drink" in item:
+                print(f"  Drink: {item['Drink']}")
+
 #getOrder function which just handles which type of base item they order
     def getOrder(self):
         while True:
-            print("Choose an option from below (Press 0 to stop order):")
+            if self.items_ordered:
+                self.temp_order()
+            print("\nChoose an option from below (Press 0 to stop order):")
             print ("1. Hotdog")
             print ("2. Burger")
             print ("3. French Fries")
-            print ("4. Drink")
+            print ("4. Drink\n")
             foodChoice = input("Enter your choice: ")
 
 #0 input breaks them out of loop, otherwise each choice corresponds to base item, if toppings are needed the getToppings method obtains them
@@ -69,8 +59,6 @@ class Order(Menu):
             elif foodChoice == '1' and self.hotdog:
              itemToppings = self.getToppings()
              self.items_ordered.append({"Item": "Hotdog", "Toppings": itemToppings})
-
-
 
             elif foodChoice == '2' and self.burger:
                 itemToppings = self.getToppings()
@@ -94,7 +82,8 @@ class Order(Menu):
         #to only one base item ordered 
         toppings = []
         while True:
-            print("Toppings available: (Enter 13 for plain)")
+            menu = Menu.PRICES["toppings"]
+            print("\nToppings available: (Enter 13 for plain)")
             print("1. Nacho Cheese")
             print("2. American Slice Cheese")
             print("3. Ketchup")
@@ -108,23 +97,23 @@ class Order(Menu):
             print("11. Mushrooms")
             print("12. Relish")
             print("13. Plain")
-            print("14. Chili")
+            print("14. Chili\n")
             topping_choice = input("Enter topping numbers: (0 to finish) ")
             if topping_choice == '0' and len(toppings) == 0: #This is for if they are done picking toppings and have at least one
-                topping_choice = FoodToppings(13)
-                toppings.append(topping_choice.name)
+                topping_choice = list(menu)[int(topping_choice) - 1]
+                toppings.append(topping_choice)
                 break
             elif topping_choice == '0' and len(toppings) > 0: #This is for if they are done picking toppings and have at least one
                 break
+
             if topping_choice == '13': #This is for if they get it plain, makes the toppings empty and adds plain and exits loop
                 toppings = []
-                topping_choice = FoodToppings(int(topping_choice))
-                toppings.append(topping_choice.name)
+                topping_choice = list(menu)[int(topping_choice) - 1]
+                toppings.append(topping_choice)
                 break
             try:
-                topping_choice = FoodToppings(int(topping_choice))
-                toppings.append(topping_choice.name)
-
+                topping_choice = list(menu)[int(topping_choice) - 1]
+                toppings.append(topping_choice)
             except ValueError:
                 print("Invalid topping choice. Please try again.")
         return toppings
@@ -134,10 +123,10 @@ class Order(Menu):
         size = []
         fry_options = ["Small", "Medium", "Large"]
         while True:
-            print("Small, Medium or Large")
+            print("\nSmall, Medium or Large")
             print("1. Small")
             print("2. Medium")
-            print("3. Large")
+            print("3. Large\n")
             
             try:
                 size_choice = int(input("Enter size choice for Fries: "))
@@ -153,10 +142,10 @@ class Order(Menu):
         drink = []
         drink_options = ["Fountain", "Sweet Tea", "Water"]
         while True:
-            print("Drink options:")
+            print("\nDrink options:")
             print("1. Fountain")
             print("2. Sweet Tea")
-            print("3. Water")
+            print("3. Water\n")
             try:
 
                 drink_choice = int(input("Enter drink choice: "))
@@ -171,7 +160,7 @@ class Order(Menu):
 #Display that loops until a valid choice is made
 def display_menu():
     while True:
-        print("The Hot-Dawgs Menu:")
+        print("\nThe Hot-Dawgs Menu:")
         print("1. Start a new order")
         print("2. View daily sales report")
         menu_choice = input("Enter your choice: ").strip()
@@ -186,8 +175,6 @@ def display_menu():
 
 #calculates the subtotal from the order
 class SubtotalCalculator:
-    
-
     def __init__(self, items):
         self.items = items
 
@@ -197,26 +184,18 @@ class SubtotalCalculator:
         for item in self.items:
             if item["Item"] in ["Hotdog", "Burger"]:
                 subtotal += Menu.PRICES["base"].get(item["Item"], 0.0)
-        
                 toppings = item.get("Toppings", [])
                 subtotal += sum(Menu.PRICES["toppings"].get(t, 0.0) for t in toppings)
             elif item["Item"] == "French Fries":
-                #Default to small size for convinence off cutstomer if there is system error.
+                #Default to small size for convinence of cutstomer if there is system error.
                 size = item.get("Size", "Small")
                 subtotal += Menu.PRICES["base"]["French Fries"].get(size, 0.0)
-                
             elif item["Item"] in Menu.PRICES["drinks"]:
                 subtotal += Menu.PRICES["drinks"][item['Item']]
             else:   
-                print(f"Warning: Unknown item '{item['Item']}' encountered in order.")                                                              
-
-                                                       
-        return round(subtotal, 2)
-    
+                print(f"Warning: Unknown item '{item['Item']}' encountered in order.")                                                                                                             
+        return round(subtotal, 2)  
     #uses round to represent it as a float so we can correctly add up all the prices
-            
-
-                
 
 #calculates the sales tax from a subtotal
 class SalesTaxCalculator:
@@ -226,8 +205,7 @@ class SalesTaxCalculator:
         self.subtotal = subtotal
 
     def calculate_tax(self):
-        return round(self.subtotal * self.TAX_RATE, 2)
-    
+        return round(self.subtotal * self.TAX_RATE, 2)    
 
 #calculates the total from the subtotal and the sales tax
 class TotalCalculator:
@@ -238,7 +216,6 @@ class TotalCalculator:
     def calculate_total(self):
         return round(self.subtotal + self.tax, 2)
 
-
 #prints a receipt of items purchased, subtotal, tax, and total
 class ReceiptPrinter:
     def __init__(self, items, subtotal, tax, total):
@@ -247,16 +224,12 @@ class ReceiptPrinter:
         self.tax = tax
         self.total = total
 
-#receipt which prints individual orders
-    def print_receipt(self):
-        print("\n    Hot Dawgs Burger and Hotdog Stand Receipt")
-        print("--------------------------------------------")
-        
+    #prints the current order with total    
+    def display_current_order(self):
         for item in self.items:
             print(f"{item['Item']}:")
             if "Toppings" in item:
                 print("  Toppings: " + ", ".join(item["Toppings"]))
-            
             if "Size" in item:
                 print(f"  Size: {item['Size']}")
             if "Drink" in item:
@@ -264,13 +237,17 @@ class ReceiptPrinter:
         print(f"\nSubtotal: ${self.subtotal:.2f}")
         print(f"Sales Tax (7%): ${self.tax:.2f}")
         print(f"Total: ${self.total:.2f}")
-        print("--- Thank you and have a great day! ---\n")
 
+    #final receipt printer
+    def print_receipt(self):
+        print("\n    Hot Dawgs Burger and Hotdog Stand Receipt")
+        print("--------------------------------------------")
+        self.display_current_order()
+        print("--- Thank you and have a great day! ---\n")
 
 def main():
     #Empty list to hold all orders, adds to it as they are made
-    #Lists for subtotal and taxes are used to map corresponding elements with the orders, also used to sum earnings which is in menu_choice = 2
-    
+    #Lists for subtotal and taxes are used to map corresponding elements with the orders, also used to sum earnings which is in menu_choice = 2    
     allOrders = []
     allSubtotals = []
     allTaxes = []

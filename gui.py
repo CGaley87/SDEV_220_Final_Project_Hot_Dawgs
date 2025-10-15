@@ -16,7 +16,7 @@ class App(tk.Tk):
         #Main window title
         self.title("Hot Dawgs")
         #Main window size by pixel. Can be adjusted larger if desired. Height below 900 cuts off buttons
-        self.geometry("800x900")
+        self.geometry("800x950")
 
         #storing lists matching maincode.py
         self.all_orders = []
@@ -24,13 +24,13 @@ class App(tk.Tk):
         self.all_taxes = []
 
         #Home screen
-        ttk.Label(self, text="The Hot Dawgs Menu", font=("Segoe UI", 18, "bold")).pack(pady=16)
+        ttk.Label(self, text="The Hot Dawgs Menu", font=("Ariel", 18, "bold")).pack(pady=10)
 
         btn_row = ttk.Frame(self)
         btn_row.pack(pady=8)
-        ttk.Button(btn_row, text="Start a new order", command=lambda: self.start_order(True)).grid(row=0, column=0, padx=6)
-        ttk.Button(btn_row, text="View daily sales report", command=self.show_report).grid(row=0, column=1, padx=6)
-
+        ttk.Button(btn_row, text="View daily sales report", command=self.show_report).grid(row=0, column=0, padx=6, pady = 20)
+        ttk.Button(btn_row, text="Start a new order", command=lambda: self.start_order(True)).grid(row=1, column=0, padx=6)
+ 
         #output frame
         self.output = tk.Text(self, height=20, width=80, state="disabled")
         self.output.pack(pady=12)
@@ -53,21 +53,28 @@ class App(tk.Tk):
         #create frame for order
         self.order_frame = ttk.Frame(self)
         self.order_frame.pack(pady=10)
-
+        
         #Buttons for each main group
         ttk.Button(self.order_frame, text="Burger", width=20,
-                   command=lambda: self.choose_item("Burger")).grid(row=0, column=0, padx=8, pady=8)
+                   command=lambda: self.choose_item("Burger")).grid(row=1, column=0, padx=8, pady=8)
         ttk.Button(self.order_frame, text="Hotdog", width=20,
-                   command=lambda: self.choose_item("Hotdog")).grid(row=0, column=1, padx=8, pady=8)
+                   command=lambda: self.choose_item("Hotdog")).grid(row=1, column=1, padx=8, pady=8)
         ttk.Button(self.order_frame, text="French Fries", width=20,
-                   command=lambda: self.choose_item("French Fries")).grid(row=1, column=0, padx=8, pady=8)
+                   command=lambda: self.choose_item("French Fries")).grid(row=2, column=0, padx=8, pady=8)
         ttk.Button(self.order_frame, text="Drink", width=20,
-                   command=lambda: self.choose_item("Drink")).grid(row=1, column=1, padx=8, pady=8)
+                   command=lambda: self.choose_item("Drink")).grid(row=2, column=1, padx=8, pady=8)
 
-        #Finish order button
-        ttk.Button(self.order_frame, text="Finish Order",
-                   command=lambda: self._finalize_order()).grid(row=2, column=0, columnspan=2, pady=(12, 0))
+        #Finish order button that only appears when an order is being made
+        self.finish_btn = ttk.Button(self.order_frame, text="Finish Order",
+                   command=lambda: self.finalize_order())
+        self.finish_btn.grid(row=4, column=0, columnspan=2, pady=(12, 0))
 
+        #Show/Hides finish order button depending on if there is currently an order
+        if getattr(self, "current_order", None):
+            self.finish_btn.grid()
+        else:
+            self.finish_btn.grid_remove()
+        
         #Manage Items button
         ttk.Button(self.order_frame, text="Manage Items",
                    command=lambda: self.open_manage_items()).grid(row=3, column=0, columnspan=2, pady=(8,0))
@@ -114,11 +121,11 @@ class App(tk.Tk):
         row_after = 1 + (len(topping_names) - 1) // cols + 1
         ttk.Button(self.subpanel, text=f"Add {item_type}",
                    command=lambda: self.add_burger_hotdog(item_type)
-                   ).grid(row=row_after, column=0, pady =10)
+                   ).grid(row=row_after, column=0, padx=20, pady=10)
         #Button created to go back for mistaken choice
         ttk.Button(self.subpanel, text="Back",
                    command=lambda: self.start_order(False)
-                   ).grid(row=row_after, column=1, pady=10, sticky="w")
+                   ).grid(row=row_after, column=1, padx=8, pady=10, sticky="w")
     
     def select_fries_ui(self):
         #code used to take down any previous subpanel. Should be in all subpanel methods
@@ -257,20 +264,20 @@ class App(tk.Tk):
         subtotal = 0.0
 
         #loops through every item in the order to create it all in the text box
-        for it in self.current_order:
-            price = self.line_price(it)
+        for item in self.current_order:
+            price = self.line_price(item)
             subtotal += price
 
-            if it["Item"] in ("Burger", "Hotdog"):
-                tops = ", ".join(it.get("Toppings", [])) or "Plain"
-                lines.append(f"- {it['Item']}: ({tops}) .... ${price:.2f}")
-            elif it["Item"] == "French Fries":
-                lines.append(f"- Fries: {it.get('Size', 'Small')} .... ${price:.2f}")
-            elif it["Item"] == "Drink":
-                lines.append(f"- Drink: {it.get('Drink', '')} .... ${price:.2f}")
+            if item["Item"] in ("Burger", "Hotdog"):
+                tops = ", ".join(item.get("Toppings", [])) or "Plain"
+                lines.append(f"- {item['Item']}: ({tops}) .... ${price:.2f}")
+            elif item["Item"] == "French Fries":
+                lines.append(f"- Fries: {item.get('Size', 'Small')} .... ${price:.2f}")
+            elif item["Item"] == "Drink":
+                lines.append(f"- Drink: {item.get('Drink', '')} .... ${price:.2f}")
             #This line is future proofing incase an item is added outside of the above parameters
             else:
-                lines.append(f"- {it["Item"]} .... ${price}:.2f")
+                lines.append(f"- {item["Item"]} .... ${price}:.2f")
         
         tax = SalesTaxCalculator(subtotal).calculate_tax()
         total = TotalCalculator(subtotal, tax).calculate_total()
@@ -316,16 +323,16 @@ class App(tk.Tk):
     def order_labels(self):
         #This is to create readable labels for self.current_order
         labels = []
-        for it in getattr(self, "current_order", []):
-            if it["Item"] in ("Burger", "Hotdog"):
-                tops = ", ".join(it.get("Toppings", [])) or "Plain"
-                labels.append(f"{it['Item']} ({tops})")
-            elif it["Item"] == "French Fries":
-                labels.append(f"Fries ({it.get('Size', 'Small')})")
-            elif it["Item"] == "Drink":
-                labels.append(f"Drink ({it.get('Drink','')})")
+        for item in getattr(self, "current_order", []):
+            if item["Item"] in ("Burger", "Hotdog"):
+                tops = ", ".join(item.get("Toppings", [])) or "Plain"
+                labels.append(f"{item['Item']} ({tops})")
+            elif item["Item"] == "French Fries":
+                labels.append(f"Fries ({item.get('Size', 'Small')})")
+            elif item["Item"] == "Drink":
+                labels.append(f"Drink ({item.get('Drink','')})")
             else:
-                labels.append(it["Item"])
+                labels.append(item["Item"])
         return labels
 
     def delete_selected_items(self):
@@ -358,13 +365,13 @@ class App(tk.Tk):
         ]
         self.write("\n".join(lines))
 
-    def _finalize_order(self):
+    def finalize_order(self):
         #Method to finalize an order and commit it to the daily summary
         if not getattr(self, "current_order", None):
             self.write("No items in order yet.")
             return
         
-        subtotal = sum(self.line_price(it) for it in self.current_order)
+        subtotal = sum(self.line_price(item) for item in self.current_order)
         tax = SalesTaxCalculator(subtotal).calculate_tax()
         total = TotalCalculator(subtotal, tax).calculate_total()
 
@@ -373,18 +380,18 @@ class App(tk.Tk):
         self.all_taxes.append(tax)
 
         #show final recepit
-        lines = ["Receipt:"]
-        for it in self.current_order:
-            price = self.line_price(it)
-            if it["Item"] in ("Burger", "Hotdog"):
-                tops = ", ".join(it.get("Toppings", [])) or "Plain"
-                lines.append(f"- {it['Item']}: ({tops}) .... ${price:.2f}")
-            elif it["Item"] == "French Fries":
-                lines.append(f"- Fries: {it.get('Size', 'Small')} .... ${price:.2f}")
-            elif it["Item"] == "Drink":
-                lines.append(f"- Drink: {it.get('Drink', '')}) .... ${price:.2f}")
+        lines = ["****Receipt:****"]
+        for item in self.current_order:
+            price = self.line_price(item)
+            if item["Item"] in ("Burger", "Hotdog"):
+                tops = ", ".join(item.get("Toppings", [])) or "Plain"
+                lines.append(f"- {item['Item']}: ({tops}) .... ${price:.2f}")
+            elif item["Item"] == "French Fries":
+                lines.append(f"- Fries: {item.get('Size', 'Small')} .... ${price:.2f}")
+            elif item["Item"] == "Drink":
+                lines.append(f"- Drink: {item.get('Drink', '')}) .... ${price:.2f}")
             else:
-                lines.append(f"- {it["Item"]} .... ${price}.2f")
+                lines.append(f"- {item["Item"]} .... ${price:.2f}")
         lines += [
             "-" * 32,
             f"Subtotal: ${subtotal:.2f}",
@@ -395,6 +402,7 @@ class App(tk.Tk):
 
         #clear and reset for next order
         self.current_order = []
+        self.start_order(False)
 
     def write(self, msg: str):
         #Used across GUI to write text
