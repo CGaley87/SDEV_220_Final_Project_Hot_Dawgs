@@ -6,8 +6,11 @@
 #  The current coding allows for the easy addition of toppings in maincode.py without
 #  having to overhaul the system.
 
+# * imports everything from maincode to ensure all current and future additions work
 from maincode import *
+#tkinter is a gui system built to work in python
 import tkinter as tk
+#ttk is themed GUI widgets and buttons
 from tkinter import ttk
 
 class App(tk.Tk):
@@ -25,7 +28,6 @@ class App(tk.Tk):
 
         #Home screen
         ttk.Label(self, text="The Hot Dawgs Menu", font=("Ariel", 18, "bold")).pack(pady=10)
-
         btn_row = ttk.Frame(self)
         btn_row.pack(pady=8)
         ttk.Button(btn_row, text="View Daily Sales Report", command=self.show_report).grid(row=0, column=0, padx=6, pady = 20)
@@ -292,12 +294,12 @@ class App(tk.Tk):
         self.write("\n".join(lines))
 
     def open_manage_items(self):
-        #This method allows for the deletion of items that may no longer be desired
+        #This method allows for the deletion of items
         if not getattr(self, "current_order", None):
             self.write("Not items to manage.")
             return
         
-        #build manager
+        #build manager box
         self.mgr = tk.Toplevel(self)
         self.mgr.title("Manage Items")
         self.mgr.transient(self) #this is used to keep it on top

@@ -4,24 +4,7 @@
 #  menu and see what the expected outputs are to be. Toppings can be added freely
 #  without breaking the system.
 
-from enum import Enum
 from menu import Menu
-#enum for picking toppings in getToppings
-class FoodToppings(Enum):
-    nacho = 1
-    american = 2
-    ketchup = 3 
-    mustard = 4
-    mayo = 5
-    lettuce  = 6
-    tomato = 7
-    onion = 8
-    pickles = 9
-    bacon = 10
-    mushrooms = 11
-    relish = 12
-    plain = 13 
-    chili = 14
 
 #Order subclass which inherits the prices
 class Order(Menu):
@@ -75,7 +58,6 @@ class Order(Menu):
                 
             else:
                 print("Invalid choice or option not available.")
-
 
     def getToppings(self):
         #topping list that holds toppings for an item, one element of the array (multiple toppings) corresponds 
@@ -170,8 +152,6 @@ def display_menu():
 
         else:
             print("Invalid choice. Please enter 1 or 2.")
-
-
 
 #calculates the subtotal from the order
 class SubtotalCalculator:
@@ -281,7 +261,6 @@ def main():
             for i, subtotal  in enumerate(allSubtotals, start=1):
                 tax = allTaxes[i-1]
                 print (f"Order {i} - Subtotal: ${subtotal:.2f}, Tax: ${tax}")
-
             return 
                 
 if __name__ == "__main__":
